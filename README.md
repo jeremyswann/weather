@@ -6,6 +6,8 @@ A **very** basic command line weather app
 * ⎇ [Git][]
 * ⬢ [Node.js][]
 * ⬤_[Yarn][]
+* ☁ [Dark Sky API][]
+* 🌏[Geocode API][]
 
 ## Installation:
 1. Clone the repo using `git` and open the notebook `dir`
@@ -17,6 +19,7 @@ A **very** basic command line weather app
 ```console
 λ yarn install
 ```
+3. Create a `.env` using the `.env.example` file replaceing the strings with your own API keys
 
 ## How to use:
 Run `--help` to get a list of possible commands
@@ -34,4 +37,6 @@ Have fun! :tada:
 [Node.js]: https://nodejs.org/en/
 [Yarn]: https://yarnpkg.com
 [Git]: https://help.github.com/articles/set-up-git/
+[Dark Sky API]: https://darksky.net/dev
+[Geocode API]:https://developers.google.com/maps/documentation/geocoding/intro
 [Jeremy Swanborough]: https://github.com/jeremyswann

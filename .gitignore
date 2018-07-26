@@ -3,6 +3,4 @@ notes-data.json
 yarn.lock
 node_modules
 playground
-forcast
-geocode
 .env
