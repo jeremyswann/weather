@@ -1,7 +1,11 @@
+require('dotenv').config()
 const yargs = require('yargs')
+const axios = require('axios')
 
-const geocode = require('./geocode/geocode')
-const forcast = require('./forcast/forcast')
+const mapKey = process.env.MAP_KEY
+const forcastKey = process.env.FORCAST_KEY
+
+const toCelcius = temp => parseFloat((temp - 32) / 1.8).toFixed(2)
 
 const argv = yargs
 	.options({
@@ -17,19 +21,33 @@ const argv = yargs
 	.version('1.0')
 	.alias('version', 'v').argv
 
-geocode.geocodeAddress(argv.address, (err, res) => {
-	if (err) {
-		console.log(err)
-	} else {
-		console.log(res.address)
-		forcast.forcastWeather(res.latitude, res.longitude, (err, res) => {
-			if (err) {
-				console.log(err)
-			} else {
-				console.log(
-					`Its currently ${res.temp}°C.\nIt feels like ${res.feels}°C.`
-				)
-			}
-		})
-	}
-})
+const encodedAddress = encodeURIComponent(argv.address)
+
+const maps = 'https://maps.googleapis.com'
+const geocode = '/maps/api/geocode/json'
+const mapsUrl = `${maps}${geocode}?address=${encodedAddress}&key=${mapKey}`
+
+axios
+	.get(mapsUrl)
+	.then(res => {
+		if (res.data.status === 'ZERO_RESULTS') {
+			throw new Error('Unable to find that address.')
+		}
+		const lat = res.data.results[0].geometry.location.lat
+		const lng = res.data.results[0].geometry.location.lng
+		const forcastUrl = `https://api.darksky.net/forecast/${forcastKey}/${lat},${lng}`
+		console.log('Address: ', res.data.results[0].formatted_address)
+		return axios.get(forcastUrl)
+	})
+	.then(res => {
+		const temp = toCelcius(res.data.currently.temperature)
+		const feel = toCelcius(res.data.currently.apparentTemperature)
+		console.log(`Its currently ${temp}°C.\nIt feels like ${feel}°C.`)
+	})
+	.catch(err => {
+		if (err.code === 'ENOTFOUND') {
+			console.log('Unable to connect to API servers.')
+		} else {
+			console.log(err.message)
+		}
+	})
